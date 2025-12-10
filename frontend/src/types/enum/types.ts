@@ -1,0 +1,1 @@
+export type ActivityTypes = "DISCUSSIONS" | "QUIZZES" | "PROJECTS" | "DEBATES" | "LABS"
