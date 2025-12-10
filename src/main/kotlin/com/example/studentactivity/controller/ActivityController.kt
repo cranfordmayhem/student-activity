@@ -1,13 +1,17 @@
 package com.example.studentactivity.controller
 
 import com.example.studentactivity.dto.*
+import com.example.studentactivity.entity.enums.ActivityType
 import com.example.studentactivity.service.ActivityService
 import com.example.studentactivity.utils.AuthEmailUtil
 import jakarta.validation.Valid
 import org.springframework.data.domain.*
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
+import java.time.LocalDate
 
 @RestController
 @Validated
@@ -25,9 +29,13 @@ class ActivityController(
         }
 
     @GetMapping
-    fun getAllActivities(pageable: Pageable) =
+    fun getAllActivities(
+        @RequestParam(required=false) type: ActivityType?,
+        @RequestParam(required=false) exactDate: LocalDate?,
+        pageable: Pageable
+    ) =
         authEmail.getUser().let {
-            actService.retrieveByUser(pageable, it)
+            actService.retrieveByUser(type, exactDate, pageable, it)
         }
 
     @GetMapping("/{id}")

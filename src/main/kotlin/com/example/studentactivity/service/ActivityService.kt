@@ -1,13 +1,17 @@
 package com.example.studentactivity.service
 
 import com.example.studentactivity.dto.*
+import com.example.studentactivity.entity.enums.ActivityType
 import com.example.studentactivity.exception.IdNotFoundException
 import com.example.studentactivity.repository.ActivityRepository
+import com.example.studentactivity.repository.specification.ActivitySpecification
 import com.example.studentactivity.utils.AuthEmailUtil
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.Instant
+import java.time.LocalDate
 
 @Service
 class ActivityService(
@@ -22,10 +26,13 @@ class ActivityService(
 
         return actRepo.save(request.toEntity(user)).toResponse()
     }
-    fun retrieveByUser(pageable: Pageable, userEmail: String): Page<ActivityResponse> {
-        logger.debug("Retrieving all activities")
+    fun retrieveByUser(
+        type: ActivityType?,
+        exactDate: LocalDate?, pageable: Pageable, userEmail: String)
+    : Page<ActivityResponse> {
         val user = authEmail.checkUser(userEmail)
-        return actRepo.findByAccountId(user.id, pageable).map {
+        val filter = ActivityFilter(user.id, exactDate, type)
+        return actRepo.findAll(ActivitySpecification.fromFilter(filter), pageable).map {
             it.toResponse()
         }
     }
